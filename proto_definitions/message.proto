@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package message_service;
+
+message Message {
+
+}
+
+
+// Message Service definiton
+service MessageService {
+
+}

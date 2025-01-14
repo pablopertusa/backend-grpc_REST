@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package user_service;
+
+message User {
+
+}
+message CheckUserExistsRequest {
+}
+
+message CheckUserExistsResponse {
+}
+// User service definition
+service UserService {
+        rpc CheckUserExists(CheckUserExistsRequest) returns (CheckUserExistsResponse);
+
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package notification_service;
+
+message Notification {
+}
+message Subscription {
+
+}
+
+// Notification service definition
+service NotificationService {
+}

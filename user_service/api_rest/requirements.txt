@@ -1,0 +1,6 @@
+flask
+redis
+grpcio
+grpcio-tools
+protobuf
+bcrypt
