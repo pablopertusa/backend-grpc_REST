@@ -8,7 +8,7 @@ WORKDIR /app
 ARG FOLDER
 
 COPY ${FOLDER} /app
-RUN mkdir proto_generated
+RUN mkdir -p proto_generated
 # Copy proto definitions into the container
 COPY ../proto_definitions /app/proto_definitions
 
@@ -27,7 +27,6 @@ RUN python -m grpc_tools.protoc \
     --python_out=./proto_generated \
     --grpc_python_out=./proto_generated \
     ./proto_definitions/user.proto
-
 
 RUN python -m grpc_tools.protoc \
     -I./proto_definitions \

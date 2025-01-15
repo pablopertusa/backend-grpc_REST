@@ -1,3 +1,7 @@
+import grpc
+from concurrent import futures
+
+
 class NotificationService:
     def CreateNotification(self, request, context): ...
 
@@ -8,7 +12,10 @@ class NotificationService:
     def CheckUserSubscribed(self, request, context): ...
 
 
-def serve(): ...
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server.start()
+    server.wait_for_termination()
 
 
 if __name__ == "__main__":

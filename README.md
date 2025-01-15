@@ -81,7 +81,7 @@ The project will consist of 4 microservices: `UserService`, `MessageService`, `N
 You must complete the following tasks:
 - **Task 1:** Fix Communication Between `MessageService` and `UserService`
 
-There are bugs in the internal communication between `MessageService` and `UserService` that disrupt functionality. Your task is to debug and resolve these issues to ensure smooth data flow and accurate responses.
+There are bugs and missing statements in the internal communication between `MessageService` and `UserService` that disrupt functionality. Your task is to debug and resolve these issues to ensure smooth data flow and accurate responses.
 
 
 - **Task 2:** Implement Notification-to-Frontend Communication
@@ -89,14 +89,14 @@ There are bugs in the internal communication between `MessageService` and `UserS
 The `NotificationService` must forward notifications to the `FrontendService` for users subscribed to notifications. Additionally, it should manage user notification subscription statuses. Below are the steps to implement this functionality:
 
 1. **Trigger**: A message creation event in the `MessageService` triggers a notification.
-2. **Notification Creation**: If the recipient user is subscribed, the `NotificationService` creates a notification. By default, all users are subscribed.
-3. **Frontend Delivery**: Use gRPC to send the notification from `NotificationService` to the `FrontendService`.
+2. **Notification Creation**: If the recipient user is subscribed, the `NotificationService` creates a notification. By default, all users are subscribed upon creation.
+3. **Frontend Delivery**: Use gRPC to push the notification from `NotificationService` to the `FrontendService`.
 4. **Persistence**: Store the notification in memory using Redis.
 
 
 ####  Port Configuration
 
-Each service is configured with unique HTTP and gRPC ports to avoid conflicts and streamline inter-service communication. Here are the port details for all services:
+Each service is configured with unique HTTP and gRPC ports to avoid conflicts and streamline inter-service communication. Here are the expected port details for all services:
 
 | **Service**             | **HTTP** | **gRPC** |
 |-------------------------|----------|----------|
@@ -217,7 +217,7 @@ The `db=1` Redis database stores both messages and conversation metadata.
 #### gRPC Methods:
 | **Method**            | **RPC Call**         | **Request Params**                     | **Response Params**                        | **Description**                     |
 |-----------------------|----------------------|----------------------------------------|-------------------------------------------|-------------------------------------|
-| `Create notification`         | `CreateNotification`        | `{ sender_email: string, receiver_email:string} }` | `{ success: bool }`      | Creates a notification for the receiver. |
+| `Create notification`         | `CreateNotification`        | `{ sender_email: string, receiver_email:string} }` | `{ success: bool }`      | Creates a notification for the receiver. Notification should have a `'read': bool` parameter. |
 | `Check user subscription`         | `CheckUserSubscribed`        | `{ "email": string }`             | `{ subscribed: bool }`                 | Checks if a user is subscribed to the notifications. |
 | `Subscribe a User`         | `SubscribeUser`        | `{ "email": string }`             | `{ sucess: bool }`                 | Subscribes a user to the notification service. |
 | `Unsubscribe a User`         | `UnsubscribeUser`        | `{ "email": string }`             | `{ sucess: bool }`                 | Unsubscribes a user to the notification service. |
@@ -256,12 +256,14 @@ The `db=2` Redis database stores both notification and notifications' subscripti
 #### gRPC Methods:
 | **Method**            | **RPC Call**         | **Request Params**                     | **Response Params**                        | **Description**                     |
 |-----------------------|----------------------|----------------------------------------|-------------------------------------------|-------------------------------------|
-| `Receive Notifications`         | `ReceiveNotification`        | `[Notification]` | `{ success: bool }`      | Sends a message from sender to receiver. |
+| `Receive Notifications`         | `ReceiveNotification`        | `[Notification]` | `{ success: bool }`      | Receives a notification from NotificationService. |
 
 
 
 ### 🏃‍♂️ How to Run
-Docker is used to containerize and run the project efficiently. Follow these steps to ensure everything runs smoothly:
+Docker is used to containerize and run the project efficiently. You are provided with a `docker-compose.yml` file that **MUST NOT BE MODIFIED** . Additionally, each service has its own `Dockerfile`, which can be modified if needed, although changes are not required to solve the challenge.
+
+Follow these steps to ensure everything runs smoothly:
 
 1. Verify Docker installation:
 

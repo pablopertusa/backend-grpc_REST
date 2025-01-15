@@ -9,7 +9,7 @@ ARG FOLDER
 
 COPY ${FOLDER} /app
 
-RUN mkdir proto_generated
+RUN mkdir -p proto_generated
 # Copy proto definitions into the container
 COPY ../proto_definitions /app/proto_definitions
 
