@@ -184,15 +184,15 @@ The `db=1` Redis database stores both messages and conversation metadata.
 - **Key Pattern for Messages:** `message:{message_id}`
   - **Type:** String (JSON formatted)
   - **Description:** Stores individual message details such as sender, receiver, content, and timestamp.   
-   ```json
+  ```json
     {
-    "id": 1,
-    "sender_email": "sender@example.com",
-    "receiver_email": "receiver@example.com",
-    "content": "Hello, how are you?",
-    "timestamp": "2025-01-14T12:00:00Z"
+      "id": 1,
+      "sender_email": "sender@example.com",
+      "receiver_email": "receiver@example.com",
+      "content": "Hello, how are you?",
+      "timestamp": "2025-01-14T12:00:00Z"
     }
-    ```
+  ```
 - **Additional Key:** `message_id_counter`
 
 - **Key Pattern for Users' Conversations:** `user:{user_email}:conversations`
@@ -237,6 +237,7 @@ The `db=2` Redis database stores both notification and notifications' subscripti
     "timestamp": "2025-01-13T19:31:14.207231",
     "read": false
   }
+  ```
 
 - **Key Pattern Subscriptions:** `subscriptions`
 - **Type:** Hash
@@ -244,9 +245,9 @@ The `db=2` Redis database stores both notification and notifications' subscripti
 - **Structure of value (JSON):**
   ```json
   {
-    {"user_email": "notification_sender@example.com", "subscribed": true}
+    "user_email": "notification_sender@example.com", "subscribed": true
   }
-    ```
+  ```
 
 ### **4. Frontend Service**
 
