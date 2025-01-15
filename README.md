@@ -6,7 +6,7 @@ Subcategory   ➡️   Python Backend
 
 Difficulty   ➡️   Medium
 
-Average solution time ➡️ 4 hours. The timer will begin when you click the start button and will stop upon your submission .
+Average solution time ➡️ 4 hours. The timer will begin when you click the start button and will stop upon your submission. However, this is only a reference metric and does not impact your final score. Focus on delivering a high-quality solution
 
 ---
 
