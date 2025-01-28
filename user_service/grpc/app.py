@@ -42,10 +42,8 @@ class UserService(user_pb2_grpc.UserServiceServicer):
             exists = user_data is not None
             if exists:
                 return user_pb2.CheckUserExistsResponse(exists = True)
-            
-            context.set_details("User not found")
-            context.set_code(grpc.StatusCode.NOT_FOUND)
-            return user_pb2.CheckUserExistsResponse(exists = False)
+            else: # PROBLEMA AQUI
+                return user_pb2.CheckUserExistsResponse(exists = False)
         
         except redis.RedisError as e:
             context.set_details("Redis error")

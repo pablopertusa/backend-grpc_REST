@@ -102,6 +102,24 @@ def test_checkUser():
             assert check_response.exists
     except Exception as e:
         raise e
+    
+
+
+def test_checkUser_not_valid():
+    try:
+        import user_pb2
+        import user_pb2_grpc
+
+        with grpc.insecure_channel(GRPC_USER_SERVER) as channel:
+            user_stub = user_pb2_grpc.UserServiceStub(channel)
+            check_response = user_stub.CheckUserExists(
+                user_pb2.CheckUserExistsRequest(
+                    email = 'aaaaaaaaaaaaaa@example.com'
+                )
+            )
+            assert not check_response.exists
+    except Exception as e:
+        raise e
 
 test_create_protobuf_user_service()    
 test_connection_user_service_grpc()
@@ -109,3 +127,4 @@ test_connection_user_service_http()
 test_create_user()
 test_list_users()
 test_checkUser()
+test_checkUser_not_valid()
