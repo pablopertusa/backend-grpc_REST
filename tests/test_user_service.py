@@ -84,3 +84,9 @@ def test_list_users():
 
     except Exception as e:
         raise e
+
+test_create_protobuf_user_service()    
+test_connection_user_service_grpc()
+test_connection_user_service_http()
+test_create_user()
+test_list_users()

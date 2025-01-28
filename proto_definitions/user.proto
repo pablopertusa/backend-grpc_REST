@@ -2,16 +2,38 @@ syntax = "proto3";
 
 package user_service;
 
-message User {
+import "google/protobuf/empty.proto";  // Importar el tipo Empty
 
+message User {
+        optional string name = 1;
+        optional string email = 2;
+        optional string password = 3;
 }
 message CheckUserExistsRequest {
+        optional string email = 1; 
 }
 
 message CheckUserExistsResponse {
+        optional bool exists = 1;
+}
+
+message AuthenticateRequest {
+        optional string email = 1;
+        optional string password = 2;
+}
+
+message AuthenticateResponse {
+        optional string email = 1;
+        optional bool success = 2;
+}
+
+message ListUsersResponse {
+        repeated User users = 1;
 }
 // User service definition
 service UserService {
         rpc CheckUserExists(CheckUserExistsRequest) returns (CheckUserExistsResponse);
+        rpc AuthenticateUser(AuthenticateRequest) returns (AuthenticateResponse);
+        rpc ListUsers(google.protobuf.Empty) returns (ListUsersResponse);
 
 }

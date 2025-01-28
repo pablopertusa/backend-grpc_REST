@@ -18,21 +18,23 @@ def get_user_key(email):
     return f"users:{email}"
 
 
-class UserService:  # Change if necessary
+class UserService(user_pb2_grpc.UserServiceServicer):
     def AuthenticateUser(self, request, context):
         try:
             user_data = redis_client.get(get_user_key(request.email))
         except redis.RedisError as e:
             context.set_details("Redis error")
             context.set_code(grpc.StatusCode.INTERNAL)
-            return  # return the appropiate response
+            return user_pb2.AuthenticateResponse(email = request.email, success = False)
 
         if user_data:
             user = json.loads(user_data)
             if bcrypt.checkpw(request.password.encode(), user["password"].encode()):
-                return  # return the appropiate response
-
-        return  # return the appropiate response
+                return user_pb2.AuthenticateResponse(email = request.email, success = True)
+       
+        context.set_details("User not found")
+        context.set_code(grpc.StatusCode.NOT_FOUND)
+        return user_pb2.AuthenticateResponse(email = request.email, success = False)
 
     def CheckUserExists(self, request, context):
         try:
@@ -41,9 +43,14 @@ class UserService:  # Change if necessary
         except redis.RedisError as e:
             context.set_details("Redis error")
             context.set_code(grpc.StatusCode.INTERNAL)
-            return  # return the appropiate response
+            return  user_pb2.CheckUserExistsResponse(exists = False)
 
-        return  # return the appropiate response
+        if exists:
+            return user_pb2.CheckUserExistsResponse(exists = True)
+        
+        context.set_details("User not found")
+        context.set_code(grpc.StatusCode.NOT_FOUND)
+        return user_pb2.CheckUserExistsResponse(exists = False)
 
     def ListUsers(self, request, context):
         users = []
@@ -54,20 +61,23 @@ class UserService:  # Change if necessary
                     user = json.loads(user_data)
                     if "name" in user and "email" in user:
                         users.append(
-                            # append the appropiate User element
+                            user_pb2.User(
+                                name=user["name"],
+                                email=user["email"]
+                            )
                         )
         except redis.RedisError as e:
             context.set_details("Redis error")
             context.set_code(grpc.StatusCode.INTERNAL)
-            return  # return the appropiate response
+            return user_pb2.ListUsersResponse(users = [])
 
-        return  # return the appropiate response
+        return user_pb2.ListUsersResponse(users = users)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
-    server.add_insecure_port("[::]:1111")
+    server.add_insecure_port("[::]:9797")
     try:
         server.start()
         server.wait_for_termination()
