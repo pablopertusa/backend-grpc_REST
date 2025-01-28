@@ -17,14 +17,14 @@ def test_create_protobuf_message_service():
         "-m",
         "grpc_tools.protoc",
         "--proto_path=proto_definitions/",
-        "--python_out=.",
-        "--grpc_python_out=.",
+        "--python_out=./tests",
+        "--grpc_python_out=./tests",
         "proto_definitions/message.proto",
     ]
     subprocess.run(command)
 
-    file_exists = os.path.exists("message_pb2.py") and os.path.exists(
-        "message_pb2_grpc.py"
+    file_exists = os.path.exists("tests/message_pb2.py") and os.path.exists(
+        "tests/message_pb2_grpc.py"
     )
     assert file_exists
 
@@ -75,3 +75,10 @@ def test_list_conversations():
     data = response.json()
     assert data.get("success") is True
     assert isinstance(data.get("conversations"), list)
+
+
+test_create_protobuf_message_service()
+test_connection_message_service_grpc()
+test_connection_message_service_http()
+test_send_message_successfully()
+test_list_conversations()

@@ -3,11 +3,32 @@ syntax = "proto3";
 package message_service;
 
 message Message {
-
+    optional string message_id = 1;
+    optional string sender_email = 2;
+    optional string receiver_email = 3;
+    optional string content = 4;
+    optional string timestamp = 5;
 }
 
+message SendMessageRequest {
+    optional Message message = 1;
+}
+
+message SendMessageResponse {
+    optional bool success = 1;
+    optional string message = 2;
+}
+
+message GetMessagesRequest {
+    optional string user_email = 1;
+}
+
+message GetMessagesResponse {
+    repeated Message messages = 1;
+}
 
 // Message Service definiton
 service MessageService {
-
+    rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+    rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
 }

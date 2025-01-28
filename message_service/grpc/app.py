@@ -28,18 +28,22 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
 
         # Check if sender exists
         sender_response = user_stub.CheckUserExists(
-            user_pb2.CheckUserExistsRequest()  # Missing parameters
+            user_pb2.CheckUserExistsRequest(email = message.sender_email)  # Missing parameters
         )
         if not sender_response.exists:
+            context.set_details("User not found")
+            context.set_code(grpc.StatusCode.NOT_FOUND)
             return message_pb2.SendMessageResponse(
                 success=False, message="Sender does not exist"
             )
 
-        # Check if receiver exists
+        # Check if receiver existe
         receiver_response = user_stub.CheckUserExists(
-            user_pb2.CheckUserExistsRequest()  # Missing parameters
+            user_pb2.CheckUserExistsRequest(email = message.receiver_email)  # Missing parameters
         )
         if not receiver_response.exists:
+            context.set_details("User not found")
+            context.set_code(grpc.StatusCode.NOT_FOUND)
             return message_pb2.SendMessageResponse(
                 success=False, message="Receiver does not exist"
             )
@@ -73,7 +77,9 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
         convo_key = f"conversation:{message.sender_email}:{message.receiver_email}"
         redis_messages.sadd(convo_key, message_id)
 
-        return  # return the appropiate response
+        return message_pb2.SendMessageResponse(
+                success=True, message="Message sent"
+            )
 
     def GetMessages(self, request, context):
         user_email = request.user_email
@@ -83,7 +89,9 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
         convo_participants = redis_messages.smembers(f"user:{user_email}:conversations")
 
         if not convo_participants:
-            return  # return the appropiate response. Messages should be an empty list.
+            return message_pb2.GetMessagesResponse(
+                messages = []
+            ) # return the appropiate response. Messages should be an empty list.
 
         # Retrieve messages from all conversations
         for participant in convo_participants:
@@ -97,22 +105,24 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
                 )
 
                 user_messages.append(
-                    #    Message(
-                    #         message_id=str(message_data["id"]),
-                    #         sender_email=message_data["sender_email"],
-                    #         receiver_email=message_data["receiver_email"],
-                    #         content=message_data["content"],
-                    #         timestamp=message_data["timestamp"],
-                    #     )
+                       message_pb2.Message(
+                            message_id=str(message_data["id"]),
+                            sender_email=message_data["sender_email"],
+                            receiver_email=message_data["receiver_email"],
+                            content=message_data["content"],
+                            timestamp=message_data["timestamp"],
+                        )
                 )
 
-        return  # return the appropiate response
+        return message_pb2.GetMessagesResponse(
+            messages = user_messages
+        )
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     message_pb2_grpc.add_MessageServiceServicer_to_server(MessageService(), server)
-    server.add_insecure_port("[::]:9695")
+    server.add_insecure_port("[::]:9696")
     server.start()
     server.wait_for_termination()
 
