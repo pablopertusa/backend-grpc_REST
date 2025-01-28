@@ -40,17 +40,19 @@ class UserService(user_pb2_grpc.UserServiceServicer):
         try:
             user_data = redis_client.get(get_user_key(request.email))
             exists = user_data is not None
+            if exists:
+                return user_pb2.CheckUserExistsResponse(exists = True)
+            
+            context.set_details("User not found")
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            return user_pb2.CheckUserExistsResponse(exists = False)
+        
         except redis.RedisError as e:
             context.set_details("Redis error")
             context.set_code(grpc.StatusCode.INTERNAL)
-            return  user_pb2.CheckUserExistsResponse(exists = False)
+            return user_pb2.CheckUserExistsResponse(exists = False)
 
-        if exists:
-            return user_pb2.CheckUserExistsResponse(exists = True)
         
-        context.set_details("User not found")
-        context.set_code(grpc.StatusCode.NOT_FOUND)
-        return user_pb2.CheckUserExistsResponse(exists = False)
 
     def ListUsers(self, request, context):
         users = []

@@ -31,8 +31,6 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
             user_pb2.CheckUserExistsRequest(email = message.sender_email)  # Missing parameters
         )
         if not sender_response.exists:
-            context.set_details("User not found")
-            context.set_code(grpc.StatusCode.NOT_FOUND)
             return message_pb2.SendMessageResponse(
                 success=False, message="Sender does not exist"
             )
@@ -42,8 +40,6 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
             user_pb2.CheckUserExistsRequest(email = message.receiver_email)  # Missing parameters
         )
         if not receiver_response.exists:
-            context.set_details("User not found")
-            context.set_code(grpc.StatusCode.NOT_FOUND)
             return message_pb2.SendMessageResponse(
                 success=False, message="Receiver does not exist"
             )
