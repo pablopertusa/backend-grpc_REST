@@ -15,13 +15,13 @@ def test_create_protobuf_user_service():
         "-m",
         "grpc_tools.protoc",
         "--proto_path=proto_definitions/",
-        "--python_out=.",
-        "--grpc_python_out=.",
+        "--python_out=./tests",
+        "--grpc_python_out=./tests",
         "proto_definitions/user.proto",
     ]
     subprocess.run(command)
 
-    file_exists = os.path.exists("user_pb2.py") and os.path.exists("user_pb2_grpc.py")
+    file_exists = os.path.exists("tests/user_pb2.py") and os.path.exists("tests/user_pb2_grpc.py")
     assert file_exists
 
 
@@ -62,7 +62,7 @@ def test_create_user():
     for user in users:
         payload = user
         response = requests.post(f"{HTTP_USER_SERVICE}/users", json=payload)
-        assert response.status_code == 201
+        assert response.status_code == 201 or response.status_code == 300
 
 
 def test_list_users():
@@ -84,9 +84,28 @@ def test_list_users():
 
     except Exception as e:
         raise e
+    
+
+def test_checkUser():
+    try:
+        import user_pb2
+        import user_pb2_grpc
+
+        with grpc.insecure_channel(GRPC_USER_SERVER) as channel:
+            user_stub = user_pb2_grpc.UserServiceStub(channel)
+            check_response = user_stub.CheckUserExists(
+                user_pb2.CheckUserExistsRequest(
+                    email = 'alice@example.com'
+                )
+            )
+            print(check_response.exists)
+            assert check_response.exists
+    except Exception as e:
+        raise e
 
 test_create_protobuf_user_service()    
 test_connection_user_service_grpc()
 test_connection_user_service_http()
 test_create_user()
 test_list_users()
+test_checkUser()

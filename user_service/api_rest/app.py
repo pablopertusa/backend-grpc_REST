@@ -43,7 +43,7 @@ def create_user():
 def update_user(user_mail):
     # Check if user exists in Redis
     if not redis_client.exists(get_user_key(user_mail)):
-        return jsonify({"success": False, "message": "User not found"}), 200
+        return jsonify({"success": False, "message": "User not found"}), 404
 
     updated_data = request.json
     # Validate data
@@ -59,7 +59,7 @@ def update_user(user_mail):
     return jsonify({"success": True, "message": "User updated successfully"}), 200
 
 
-@app.route("/users/<user_mail>", methods=["POST"])
+@app.route("/users/<user_mail>", methods=["DELETE"])
 def delete_user(user_mail):
     if not redis_client.exists(get_user_key(user_mail)):
         return jsonify({"success": False, "message": "User not found"}), 404

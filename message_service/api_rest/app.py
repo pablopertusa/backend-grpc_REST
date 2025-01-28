@@ -7,7 +7,7 @@ app = Flask(__name__)
 redis_messages = redis.Redis(host="redis", port=6379, db=1)
 
 
-@app.route("/list_converations", methods=["GET"])
+@app.route("/list_conversations", methods=["GET"])
 def list_conversations():
     """
     Lists all conversations for a given user email.

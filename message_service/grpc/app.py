@@ -24,58 +24,65 @@ user_stub = user_pb2_grpc.UserServiceStub(user_channel)
 
 class MessageService(message_pb2_grpc.MessageServiceServicer):
     def SendMessage(self, request, context):
-        message = request.message
+        try:
+            message = request.message
 
-        # Check if sender exists
-        sender_response = user_stub.CheckUserExists(
-            user_pb2.CheckUserExistsRequest(email = message.sender_email)  # Missing parameters
-        )
-        if not sender_response.exists:
+            # Check if sender exists
+            sender_response = user_stub.CheckUserExists(
+                user_pb2.CheckUserExistsRequest(email = message.sender_email)  # Missing parameters
+            )
+            if not sender_response.exists:
+                return message_pb2.SendMessageResponse(
+                    success=False, message="Sender does not exist"
+                )
+
+            # Check if receiver existe
+            receiver_response = user_stub.CheckUserExists(
+                user_pb2.CheckUserExistsRequest(email = message.receiver_email)  # Missing parameters
+            )
+            if not receiver_response.exists:
+                return message_pb2.SendMessageResponse(
+                    success=False, message="Receiver does not exist"
+                )
+
+            # Add message
+            message_id = redis_messages.incr("message_id_counter")
+            message.timestamp = datetime.utcnow().isoformat()
+
+            redis_messages.set(
+                f"message:{message_id}",
+                json.dumps(
+                    {
+                        "id": str(message_id),
+                        "sender_email": message.sender_email,
+                        "receiver_email": message.receiver_email,
+                        "content": message.content,
+                        "timestamp": message.timestamp,
+                    }
+                ),
+            )
+
+            # Update conversations
+            redis_messages.sadd(
+                f"user:{message.sender_email}:conversations", message.receiver_email
+            )
+            redis_messages.sadd(
+                f"user:{message.receiver_email}:conversations", message.sender_email
+            )
+
+            # Update conversation message list
+            convo_key = f"conversation:{message.sender_email}:{message.receiver_email}"
+            redis_messages.sadd(convo_key, message_id)
+
             return message_pb2.SendMessageResponse(
-                success=False, message="Sender does not exist"
-            )
-
-        # Check if receiver existe
-        receiver_response = user_stub.CheckUserExists(
-            user_pb2.CheckUserExistsRequest(email = message.receiver_email)  # Missing parameters
-        )
-        if not receiver_response.exists:
+                    success=True, message="Message sent"
+                )
+        except Exception as e:
+            context.set_details(str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
             return message_pb2.SendMessageResponse(
-                success=False, message="Receiver does not exist"
-            )
-
-        # Add message
-        message_id = redis_messages.incr("message_id_counter")
-        message.timestamp = datetime.utcnow().isoformat()
-
-        redis_messages.set(
-            f"message:{message_id}",
-            json.dumps(
-                {
-                    "id": message_id,
-                    "sender_email": message.sender_email,
-                    "receiver_email": message.receiver_email,
-                    "content": message.content,
-                    "timestamp": message.timestamp,
-                }
-            ),
-        )
-
-        # Update conversations
-        redis_messages.sadd(
-            f"user:{message.sender_email}:conversations", message.receiver_email
-        )
-        redis_messages.sadd(
-            f"user:{message.receiver_email}:conversations", message.sender_email
-        )
-
-        # Update conversation message list
-        convo_key = f"conversation:{message.sender_email}:{message.receiver_email}"
-        redis_messages.sadd(convo_key, message_id)
-
-        return message_pb2.SendMessageResponse(
-                success=True, message="Message sent"
-            )
+                    success=False, message="Internal error"
+                ) 
 
     def GetMessages(self, request, context):
         user_email = request.user_email
