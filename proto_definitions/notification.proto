@@ -3,11 +3,53 @@ syntax = "proto3";
 package notification_service;
 
 message Notification {
+    optional string sender_email = 1;
+    optional string receiver_email = 2;
+    optional string timestamp = 3;
+    optional bool read = 4;
 }
 message Subscription {
+    optional string user_email = 1;
+    optional bool subscribed = 2;
+}
+message CreateNotificationRequest {
+    optional string sender_email = 1;
+    optional string receiver_email = 2;
+}
 
+message CreateNotificationResponse {
+    optional bool success = 1;
+}
+
+message CheckUserSubscribedRequest {
+    optional string email = 1;
+}
+
+message CheckUserSubscribedResponse {
+    optional bool subscribed = 1;
+}
+
+message SubscribeUserRequest {
+    optional string email = 1;
+}
+
+message SubscribeUserResponse {
+    optional bool success = 1;
+}
+
+message UnsubscribeUserRequest {
+    optional string email = 1;
+}
+
+message UnsubscribeUserResponse {
+    optional bool success = 1;
 }
 
 // Notification service definition
 service NotificationService {
+    rpc CreateNotification(CreateNotificationRequest) returns (CreateNotificationResponse);
+    rpc CheckUserSubscribed(CheckUserSubscribedRequest) returns (CheckUserSubscribedResponse);
+    rpc SubscribeUser(SubscribeUserRequest) returns (SubscribeUserResponse);
+    rpc UnsubscribeUser(UnsubscribeUserRequest) return (UnsubscribeUserResponse);
+
 }

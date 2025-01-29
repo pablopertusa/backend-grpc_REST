@@ -4,7 +4,8 @@ import message_pb2
 import message_pb2_grpc
 import user_pb2
 import user_pb2_grpc
-
+import notification_pb2_grpc
+import notification_pb2
 from datetime import datetime
 import redis
 import json
@@ -20,7 +21,8 @@ if not redis_messages.exists("message_id_counter"):
 # Connect to UserService
 user_channel = grpc.insecure_channel("user_service_grpc:9797")
 user_stub = user_pb2_grpc.UserServiceStub(user_channel)
-
+notification_channel = grpc.insecure_channel("notification_service_grpc:9898")
+notification_stub = notification_pb2_grpc.NotificationServiceStub(notification_channel)
 
 class MessageService(message_pb2_grpc.MessageServiceServicer):
     def SendMessage(self, request, context):
@@ -73,6 +75,20 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
             # Update conversation message list
             convo_key = f"conversation:{message.sender_email}:{message.receiver_email}"
             redis_messages.sadd(convo_key, message_id)
+
+            checkUser_response = notification_stub.CheckUserSubscribed(
+                notification_pb2.CheckUserSubscribedRequest(
+                    email = message.receiver_email
+                )
+            )
+
+            if checkUser_response.subscribed:
+                notification_stub.CreateNotification(
+                    notification_pb2.CreateNotificationRequest(
+                        sender_email = message.sender_email,
+                        receiver_email = message.receiver_email
+                    )
+                )
 
             return message_pb2.SendMessageResponse(
                     success=True, message="Message sent"
