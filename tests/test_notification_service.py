@@ -21,14 +21,14 @@ def test_create_protobuf_notification_service():
         "-m",
         "grpc_tools.protoc",
         "--proto_path=proto_definitions/",
-        "--python_out=.",
-        "--grpc_python_out=.",
+        "--python_out=./tests",
+        "--grpc_python_out=./tests",
         "proto_definitions/notification.proto",
     ]
     subprocess.run(command)
 
-    file_exists = os.path.exists("notification_pb2.py") and os.path.exists(
-        "notification_pb2_grpc.py"
+    file_exists = os.path.exists("tests/notification_pb2.py") and os.path.exists(
+        "tests/notification_pb2_grpc.py"
     )
     assert file_exists
 
