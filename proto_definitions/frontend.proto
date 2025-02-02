@@ -2,7 +2,19 @@ syntax = "proto3";
 
 package frontend_service;
 
+// Response message for ReceiveNotification
+message ReceiveNotificationResponse {
+    bool success = 1;
+}
+
+message Notification {
+    optional string sender_email = 1;
+    optional string receiver_email = 2;
+    optional string timestamp = 3;
+    optional bool read = 4;
+}
 
 // Frontend Service definition
 service FrontendService {
+    rpc ReceiveNotification(Notification) returns (ReceiveNotificationResponse);
 }

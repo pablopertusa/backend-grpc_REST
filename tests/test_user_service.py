@@ -62,6 +62,9 @@ def test_create_user():
     for user in users:
         payload = user
         response = requests.post(f"{HTTP_USER_SERVICE}/users", json=payload)
+        print('--------------')
+        print(response.json())
+        print('-------------')
         assert response.status_code == 201 or response.status_code == 300
 
 
@@ -120,11 +123,12 @@ def test_checkUser_not_valid():
             assert not check_response.exists
     except Exception as e:
         raise e
+    
 
-test_create_protobuf_user_service()    
-test_connection_user_service_grpc()
-test_connection_user_service_http()
-test_create_user()
-test_list_users()
-test_checkUser()
-test_checkUser_not_valid()
+# test_create_protobuf_user_service()
+# test_connection_user_service_grpc()
+# test_connection_user_service_http()
+# test_create_user()
+# test_list_users()
+# test_checkUser()
+# test_checkUser_not_valid()

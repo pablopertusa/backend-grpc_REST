@@ -77,8 +77,8 @@ def test_list_conversations():
     assert isinstance(data.get("conversations"), list)
 
 
-test_create_protobuf_message_service()
-test_connection_message_service_grpc()
-test_connection_message_service_http()
-test_send_message_successfully()
-test_list_conversations()
+# test_create_protobuf_message_service()
+# test_connection_message_service_http()
+# test_connection_message_service_grpc()
+# test_send_message_successfully()
+# test_list_conversations()

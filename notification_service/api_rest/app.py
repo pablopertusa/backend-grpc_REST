@@ -22,7 +22,7 @@ def list_conversations():
     # Decode Redis binary data
     notifications_decode = [json.loads(notification) for notification in notifications]
 
-    return jsonify({"success": True, "conversations": notifications_decode}), 200
+    return jsonify({"success": True, "notifications": notifications_decode}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8282, debug=True)

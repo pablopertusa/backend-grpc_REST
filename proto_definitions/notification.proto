@@ -50,6 +50,6 @@ service NotificationService {
     rpc CreateNotification(CreateNotificationRequest) returns (CreateNotificationResponse);
     rpc CheckUserSubscribed(CheckUserSubscribedRequest) returns (CheckUserSubscribedResponse);
     rpc SubscribeUser(SubscribeUserRequest) returns (SubscribeUserResponse);
-    rpc UnsubscribeUser(UnsubscribeUserRequest) return (UnsubscribeUserResponse);
+    rpc UnsubscribeUser(UnsubscribeUserRequest) returns (UnsubscribeUserResponse);
 
 }

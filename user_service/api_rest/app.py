@@ -3,6 +3,9 @@ import redis
 import json
 import bcrypt
 import os
+import grpc
+import notification_pb2
+import notification_pb2_grpc
 
 app = Flask(__name__)
 
@@ -10,6 +13,10 @@ app = Flask(__name__)
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
+
+# Connect to notification channel to subscribe user upon creation
+notification_channel = grpc.insecure_channel("notification_service_grpc:9898")
+notification_stub = notification_pb2_grpc.NotificationServiceStub(notification_channel)
 
 
 def get_user_key(email):
@@ -35,9 +42,18 @@ def create_user():
         redis_client.set(get_user_key(user_mail), json.dumps(data))
     except redis.RedisError as e:
         return jsonify({"success": False, "message": "Error storing user data"}), 500
-
-    return jsonify({"success": True, "message": "User created successfully"}), 201
-
+    
+    subscribe_user_response = notification_stub.SubscribeUser(
+                notification_pb2.SubscribeUserRequest(
+                    email = user_mail
+                )
+            )
+    
+    if subscribe_user_response.success:
+        return jsonify({"success": True, "message": "User created successfully"}), 201
+    else:
+        redis_client.delete(get_user_key(user_mail)) # lo borramos porque no se ha completado la suscripcion
+        return jsonify({"success": False, "message": "Error subscribing user upon creation"}), 500
 
 @app.route("/users/<user_mail>", methods=["PUT"])
 def update_user(user_mail):
