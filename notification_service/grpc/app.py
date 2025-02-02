@@ -88,7 +88,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             )
             else:
                 decoded_data['subscribed'] = 1
-                redis_notifications.hset(f'subscriptions:{email}', decoded_data)
+                redis_notifications.hset(f'subscriptions:{email}', mapping = decoded_data)
                 return notification_pb2.SubscribeUserResponse(
                     success=True
                 )
@@ -123,7 +123,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             )
             else:
                 decoded_data['subscribed'] = 0
-                redis_notifications.hset(f'subscriptions:{email}', decoded_data)
+                redis_notifications.hset(f'subscriptions:{email}', mapping = decoded_data)
                 return notification_pb2.UnsubscribeUserResponse(
                     success=True
                 )

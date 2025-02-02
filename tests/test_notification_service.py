@@ -120,3 +120,71 @@ def test_list_notifications():
     data = response.json()
     assert data.get("success") is True
     assert isinstance(data.get("notifications"), list)
+
+
+def test_subscribe_user():
+    user_email = "alice@example.com"
+    import notification_pb2
+    import notification_pb2_grpc
+
+    notification_channel = grpc.insecure_channel(GRPC_NOTIFICATION_SERVER)
+    notification_stub = notification_pb2_grpc.NotificationServiceStub(
+        notification_channel
+    )
+    notification_response = notification_stub.SubscribeUser(
+                notification_pb2.SubscribeUserRequest(
+                    email = user_email,
+                )
+            )
+    assert notification_response.success
+
+
+def test_unsubscribe_user():
+    user_email = "alice@example.com"
+    import notification_pb2
+    import notification_pb2_grpc
+
+    notification_channel = grpc.insecure_channel(GRPC_NOTIFICATION_SERVER)
+    notification_stub = notification_pb2_grpc.NotificationServiceStub(
+        notification_channel
+    )
+    notification_response = notification_stub.UnsubscribeUser(
+                notification_pb2.UnsubscribeUserRequest(
+                    email = user_email,
+                )
+            )
+    assert notification_response.success
+
+
+def test_resubscribe_user():
+    user_email = "alice@example.com"
+    import notification_pb2
+    import notification_pb2_grpc
+
+    notification_channel = grpc.insecure_channel(GRPC_NOTIFICATION_SERVER)
+    notification_stub = notification_pb2_grpc.NotificationServiceStub(
+        notification_channel
+    )
+    notification_response = notification_stub.SubscribeUser(
+                notification_pb2.SubscribeUserRequest(
+                    email = user_email,
+                )
+            )
+    assert notification_response.success
+
+def test_unsubscribe_user():
+    user_email = "alice@example.com"
+    import notification_pb2
+    import notification_pb2_grpc
+
+    notification_channel = grpc.insecure_channel(GRPC_NOTIFICATION_SERVER)
+    notification_stub = notification_pb2_grpc.NotificationServiceStub(
+        notification_channel
+    )
+    notification_response = notification_stub.UnsubscribeUser(
+                notification_pb2.UnsubscribeUserRequest(
+                    email = user_email,
+                )
+            )
+    assert notification_response.success
+
