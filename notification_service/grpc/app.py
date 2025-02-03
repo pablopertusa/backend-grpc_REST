@@ -34,7 +34,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
                 return notification_pb2.CreateNotificationResponse(
                     success = False
                 )
-            if receiver_subscribed:
+            if int(receiver_subscribed) == 1:
 
                 timestamp = datetime.utcnow().isoformat()
                 notification = {
@@ -75,24 +75,15 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
     def SubscribeUser(self, request, context):
         try:
             email = request.email
-            user_data = redis_notifications.hgetall(f'subscriptions:{email}')
-            decoded_data = {k.decode(): v.decode() for k, v in user_data.items()}
-            if len(decoded_data) == 0:
-                data = {
-                    'user_email' : email,
-                    'subscribed' : 1
-                }
-                redis_notifications.hset(f'subscriptions:{email}', mapping=data)
-                return notification_pb2.SubscribeUserResponse(
-                success=True
+            data = {
+                'user_email' : email,
+                'subscribed' : "1"
+            }
+            redis_notifications.hset(f'subscriptions:{email}', mapping=data)
+            return notification_pb2.SubscribeUserResponse(
+            success=True
             )
-            else:
-                decoded_data['subscribed'] = 1
-                redis_notifications.hset(f'subscriptions:{email}', mapping = decoded_data)
-                return notification_pb2.SubscribeUserResponse(
-                    success=True
-                )
-
+        
         except redis.RedisError as error:
             context.set_details(f'Redis error: {error}')
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -110,24 +101,14 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
     def UnsubscribeUser(self, request, context):
         try:
             email = request.email
-            user_data = redis_notifications.hgetall(f'subscriptions:{email}')
-            decoded_data = {k.decode(): v.decode() for k, v in user_data.items()}
-            if len(decoded_data) == 0:
-                data = {
-                    'user_email' : email,
-                    'subscribed' : 0
-                }
-                redis_notifications.hset(f'subscriptions:{email}', mapping=data)
-                return notification_pb2.SubscribeUserResponse(
-                success=True
+            data = {
+                'user_email' : email,
+                'subscribed' : "0"
+            }
+            redis_notifications.hset(f'subscriptions:{email}', mapping=data)
+            return notification_pb2.UnsubscribeUserResponse(
+            success=True
             )
-            else:
-                decoded_data['subscribed'] = 0
-                redis_notifications.hset(f'subscriptions:{email}', mapping = decoded_data)
-                return notification_pb2.UnsubscribeUserResponse(
-                    success=True
-                )
-
         except redis.RedisError as error:
             context.set_details(f'Redis error: {error}')
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -148,7 +129,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             user_data = redis_notifications.hgetall(f'subscriptions:{email}')
             decoded_data = {k.decode(): v.decode() for k, v in user_data.items()}
             if 'subscribed' in decoded_data:
-                is_subscribed = bool(decoded_data['subscribed'])
+                is_subscribed = int(decoded_data['subscribed']) == 1
                 return notification_pb2.CheckUserSubscribedResponse(
                     subscribed = is_subscribed
                 )

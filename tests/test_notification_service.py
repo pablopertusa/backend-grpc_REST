@@ -188,3 +188,38 @@ def test_unsubscribe_user():
             )
     assert notification_response.success
 
+
+def test_check_user_unsubscribed():
+    import notification_pb2
+    import notification_pb2_grpc
+
+    notification_channel = grpc.insecure_channel(GRPC_NOTIFICATION_SERVER)
+    notification_stub = notification_pb2_grpc.NotificationServiceStub(
+            notification_channel
+        )
+
+    notification_response = notification_stub.CheckUserSubscribed(
+                notification_pb2.CheckUserSubscribedRequest(
+                    email="alice@example.com",
+                )
+            )
+    assert not notification_response.subscribed
+
+
+def test_create_notification_unsubscribed_receiver():
+    import notification_pb2
+    import notification_pb2_grpc
+
+    notification_channel = grpc.insecure_channel(GRPC_NOTIFICATION_SERVER)
+    notification_stub = notification_pb2_grpc.NotificationServiceStub(
+            notification_channel
+        )
+
+    notification_response = notification_stub.CreateNotification(
+                notification_pb2.CreateNotificationRequest(
+                    sender_email="sender@example.com",
+                    receiver_email="alice@example.com",
+                )
+            )
+    assert not notification_response.success
+
