@@ -20,25 +20,27 @@ def get_user_key(email):
 
 class UserService(user_pb2_grpc.UserServiceServicer):
     def AuthenticateUser(self, request, context):
+        email = request.email
         try:
-            user_data = redis_client.get(get_user_key(request.email))
+            user_data = redis_client.get(get_user_key(email))
         except redis.RedisError as e:
             context.set_details("Redis error")
             context.set_code(grpc.StatusCode.INTERNAL)
-            return user_pb2.AuthenticateResponse(email = request.email, success = False)
+            return user_pb2.AuthenticateResponse(email = email, success = False)
 
         if user_data:
             user = json.loads(user_data)
             if bcrypt.checkpw(request.password.encode(), user["password"].encode()):
-                return user_pb2.AuthenticateResponse(email = request.email, success = True)
+                return user_pb2.AuthenticateResponse(email = email, success = True)
        
         context.set_details("User not found")
         context.set_code(grpc.StatusCode.NOT_FOUND)
-        return user_pb2.AuthenticateResponse(email = request.email, success = False)
+        return user_pb2.AuthenticateResponse(email = email, success = False)
 
     def CheckUserExists(self, request, context):
+        email = request.email
         try:
-            user_data = redis_client.get(get_user_key(request.email))
+            user_data = redis_client.get(get_user_key(email))
             exists = user_data is not None
             if exists:
                 return user_pb2.CheckUserExistsResponse(exists = True)
@@ -65,15 +67,13 @@ class UserService(user_pb2_grpc.UserServiceServicer):
                                 name=user["name"],
                                 email=user["email"]
                             )
-                        )
+                        ) # Append all users
+            return user_pb2.ListUsersResponse(users = users)
         except redis.RedisError as e:
             context.set_details("Redis error")
             context.set_code(grpc.StatusCode.INTERNAL)
             return user_pb2.ListUsersResponse(users = [])
-
-        return user_pb2.ListUsersResponse(users = users)
-
-
+        
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)

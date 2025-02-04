@@ -21,15 +21,14 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             receiver_email = request.receiver_email
             sender_email = request.sender_email
             
-            # Ahora vemos si el receiver esta suscrito y si lo esta creamos una notificacion
+            # Check if receiver is subscribed
             user_data = redis_notifications.hgetall(f'subscriptions:{receiver_email}')
             decoded_data = {k.decode(): v.decode() for k, v in user_data.items()}
+            # Check if Redis has dada for the receiver
             has_data = 'subscribed' in decoded_data
-            
             
             if has_data:
                 receiver_subscribed = decoded_data['subscribed']
-
                 if int(receiver_subscribed) == 1:
 
                     timestamp = datetime.utcnow().isoformat()
@@ -43,7 +42,6 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
                     # Almacenar la notificación como JSON en la lista
                     redis_notifications.lpush(f'notifications:{receiver_email}', json.dumps(notification))
                     
-
                     frontend_reponse = frontend_stub.ReceiveNotification(
                         frontend_pb2.Notification(
                             sender_email = sender_email,
@@ -51,7 +49,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
                             timestamp = timestamp,
                             read = False
                         )
-                    ) # no pone que se haga nada con esta respuesta, que en principio siempre es que sí se ha realizado
+                    )
 
                     return notification_pb2.CreateNotificationResponse(
                         success = True
@@ -75,6 +73,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
     def SubscribeUser(self, request, context):
         try:
             email = request.email
+            # Change Redis data for the user
             data = {
                 'user_email' : email,
                 'subscribed' : "1"
@@ -101,6 +100,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
     def UnsubscribeUser(self, request, context):
         try:
             email = request.email
+            # Change Redis data for the user
             data = {
                 'user_email' : email,
                 'subscribed' : "0"
@@ -126,9 +126,11 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
     def CheckUserSubscribed(self, request, context):
         try:
             email = request.email
+            # Fetch user data
             user_data = redis_notifications.hgetall(f'subscriptions:{email}')
             decoded_data = {k.decode(): v.decode() for k, v in user_data.items()}
             if 'subscribed' in decoded_data:
+                # Check user state
                 is_subscribed = int(decoded_data['subscribed']) == 1
                 return notification_pb2.CheckUserSubscribedResponse(
                     subscribed = is_subscribed

@@ -10,7 +10,6 @@ from datetime import datetime
 import redis
 import json
 
-
 # Redis Connections
 redis_messages = redis.Redis(host="redis", port=6379, db=1)
 
@@ -76,19 +75,13 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
             convo_key = f"conversation:{message.sender_email}:{message.receiver_email}"
             redis_messages.sadd(convo_key, message_id)
 
-            checkUser_response = notification_stub.CheckUserSubscribed(
-                notification_pb2.CheckUserSubscribedRequest(
-                    email = message.receiver_email
+            # Create notification
+            notification_stub.CreateNotification(
+                notification_pb2.CreateNotificationRequest(
+                    sender_email = message.sender_email,
+                    receiver_email = message.receiver_email
                 )
             )
-
-            if checkUser_response.subscribed:
-                notification_stub.CreateNotification(
-                    notification_pb2.CreateNotificationRequest(
-                        sender_email = message.sender_email,
-                        receiver_email = message.receiver_email
-                    )
-                )
 
             return message_pb2.SendMessageResponse(
                     success=True, message="Message sent"
@@ -131,7 +124,7 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
                             content=message_data["content"],
                             timestamp=message_data["timestamp"],
                         )
-                )
+                ) # Append all user messages
 
         return message_pb2.GetMessagesResponse(
             messages = user_messages

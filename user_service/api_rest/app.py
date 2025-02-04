@@ -35,6 +35,7 @@ def create_user():
     if redis_client.exists(get_user_key(user_mail)):
         return jsonify({"success": False, "message": "User already exists"}), 300
 
+    # Hash the password for security
     hashed_password = bcrypt.hashpw(data["password"].encode(), bcrypt.gensalt())
     data["password"] = hashed_password.decode()
 
@@ -43,6 +44,7 @@ def create_user():
     except redis.RedisError as e:
         return jsonify({"success": False, "message": "Error storing user data"}), 500
     
+    # Subscribe user upon creation
     subscribe_user_response = notification_stub.SubscribeUser(
                 notification_pb2.SubscribeUserRequest(
                     email = user_mail
@@ -52,7 +54,7 @@ def create_user():
     if subscribe_user_response.success:
         return jsonify({"success": True, "message": "User created successfully"}), 201
     else:
-        redis_client.delete(get_user_key(user_mail)) # lo borramos porque no se ha completado la suscripcion
+        redis_client.delete(get_user_key(user_mail)) # Delete user because the subscrition has failed 
         return jsonify({"success": False, "message": "Error subscribing user upon creation"}), 500
 
 @app.route("/users/<user_mail>", methods=["PUT"])
