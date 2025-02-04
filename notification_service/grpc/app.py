@@ -22,7 +22,6 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             sender_email = request.sender_email
             
             # Ahora vemos si el receiver esta suscrito y si lo esta creamos una notificacion
-
             user_data = redis_notifications.hgetall(f'subscriptions:{receiver_email}')
             decoded_data = {k.decode(): v.decode() for k, v in user_data.items()}
             has_data = 'subscribed' in decoded_data
@@ -30,36 +29,37 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             
             if has_data:
                 receiver_subscribed = decoded_data['subscribed']
-            else:
-                return notification_pb2.CreateNotificationResponse(
-                    success = False
-                )
-            if int(receiver_subscribed) == 1:
 
-                timestamp = datetime.utcnow().isoformat()
-                notification = {
-                    "sender_email": sender_email,
-                    "receiver_email": receiver_email,
-                    "timestamp": timestamp,
-                    "read": False
-                }
-                
-                # Almacenar la notificación como JSON en la lista
-                redis_notifications.lpush(f'notifications:{receiver_email}', json.dumps(notification))
-                
+                if int(receiver_subscribed) == 1:
 
-                frontend_reponse = frontend_stub.ReceiveNotification(
-                    frontend_pb2.Notification(
-                        sender_email = sender_email,
-                        receiver_email = receiver_email,
-                        timestamp = timestamp,
-                        read = False
+                    timestamp = datetime.utcnow().isoformat()
+                    notification = {
+                        "sender_email": sender_email,
+                        "receiver_email": receiver_email,
+                        "timestamp": timestamp,
+                        "read": False
+                    }
+                    
+                    # Almacenar la notificación como JSON en la lista
+                    redis_notifications.lpush(f'notifications:{receiver_email}', json.dumps(notification))
+                    
+
+                    frontend_reponse = frontend_stub.ReceiveNotification(
+                        frontend_pb2.Notification(
+                            sender_email = sender_email,
+                            receiver_email = receiver_email,
+                            timestamp = timestamp,
+                            read = False
+                        )
+                    ) # no pone que se haga nada con esta respuesta, que en principio siempre es que sí se ha realizado
+
+                    return notification_pb2.CreateNotificationResponse(
+                        success = True
                     )
-                ) # no pone que se haga nada con esta respuesta, que en principio siempre es que sí se ha realizado
-
-                return notification_pb2.CreateNotificationResponse(
-                    success = True
-                )
+                else:
+                    return notification_pb2.CreateNotificationResponse(
+                    success = False
+                ) 
             else:
                 return notification_pb2.CreateNotificationResponse(
                     success = False

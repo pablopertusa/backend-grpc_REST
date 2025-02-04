@@ -42,7 +42,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
             exists = user_data is not None
             if exists:
                 return user_pb2.CheckUserExistsResponse(exists = True)
-            else: # PROBLEMA AQUI
+            else:
                 return user_pb2.CheckUserExistsResponse(exists = False)
         
         except redis.RedisError as e:

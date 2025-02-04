@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package frontend_service;
 
-// Response message for ReceiveNotification
 message ReceiveNotificationResponse {
     bool success = 1;
 }

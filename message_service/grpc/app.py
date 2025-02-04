@@ -31,7 +31,7 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
 
             # Check if sender exists
             sender_response = user_stub.CheckUserExists(
-                user_pb2.CheckUserExistsRequest(email = message.sender_email)  # Missing parameters
+                user_pb2.CheckUserExistsRequest(email = message.sender_email)
             )
             if not sender_response.exists:
                 return message_pb2.SendMessageResponse(
@@ -40,7 +40,7 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
 
             # Check if receiver existe
             receiver_response = user_stub.CheckUserExists(
-                user_pb2.CheckUserExistsRequest(email = message.receiver_email)  # Missing parameters
+                user_pb2.CheckUserExistsRequest(email = message.receiver_email)
             )
             if not receiver_response.exists:
                 return message_pb2.SendMessageResponse(

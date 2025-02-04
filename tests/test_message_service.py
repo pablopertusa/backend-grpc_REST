@@ -75,10 +75,3 @@ def test_list_conversations():
     data = response.json()
     assert data.get("success") is True
     assert isinstance(data.get("conversations"), list)
-
-
-# test_create_protobuf_message_service()
-# test_connection_message_service_http()
-# test_connection_message_service_grpc()
-# test_send_message_successfully()
-# test_list_conversations()
