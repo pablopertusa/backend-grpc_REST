@@ -24,7 +24,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
         try:
             user_data = redis_client.get(get_user_key(email))
         except redis.RedisError as e:
-            context.set_details("Redis error")
+            context.set_details(f"Redis:{e}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return user_pb2.AuthenticateResponse(email = email, success = False)
 
@@ -48,7 +48,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
                 return user_pb2.CheckUserExistsResponse(exists = False)
         
         except redis.RedisError as e:
-            context.set_details("Redis error")
+            context.set_details(f"Redis:{e}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return user_pb2.CheckUserExistsResponse(exists = False)
 
@@ -70,7 +70,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
                         ) # Append all users
             return user_pb2.ListUsersResponse(users = users)
         except redis.RedisError as e:
-            context.set_details("Redis error")
+            context.set_details(f"Redis error: {e}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return user_pb2.ListUsersResponse(users = [])
         
