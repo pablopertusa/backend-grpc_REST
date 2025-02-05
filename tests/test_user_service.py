@@ -27,8 +27,7 @@ def test_create_protobuf_user_service():
 
 def test_connection_user_service_http():
     try:
-        response = requests.get(HTTP_USER_SERVICE)
-        assert True  # If an error has not been raised, port is working
+        requests.get(HTTP_USER_SERVICE)
     except Exception as e:
         raise e
 

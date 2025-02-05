@@ -25,4 +25,4 @@ def list_conversations():
     return jsonify({"success": True, "notifications": notifications_decode}), 200
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8282, debug=True)
+    app.run(host="0.0.0.0", port=8282)

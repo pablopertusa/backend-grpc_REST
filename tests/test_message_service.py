@@ -31,9 +31,7 @@ def test_create_protobuf_message_service():
 
 def test_connection_message_service_http():
     try:
-        response = requests.get(HTTP_MESSAGE_SERVICE)
-        assert True
-
+        requests.get(HTTP_MESSAGE_SERVICE)
     except Exception as e:
         raise e
 

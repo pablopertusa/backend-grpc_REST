@@ -6,7 +6,7 @@ import user_pb2
 import user_pb2_grpc
 import notification_pb2_grpc
 import notification_pb2
-from datetime import datetime
+from datetime import datetime, timezone
 import redis
 import json
 
@@ -48,7 +48,7 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
 
             # Add message
             message_id = redis_messages.incr("message_id_counter")
-            message.timestamp = datetime.utcnow().isoformat()
+            message.timestamp = datetime.now(timezone.utc).isoformat()
 
             redis_messages.set(
                 f"message:{message_id}",

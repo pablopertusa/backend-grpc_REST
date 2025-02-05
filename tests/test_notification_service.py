@@ -35,8 +35,7 @@ def test_create_protobuf_notification_service():
 
 def test_connection_notification_service_http():
     try:
-        response = requests.get(HTTP_NOTIFICATION_SERVICE)
-        assert True  # If an error has not been raised, port is working
+        requests.get(HTTP_NOTIFICATION_SERVICE)
     except Exception as e:
         raise e
 

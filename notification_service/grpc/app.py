@@ -6,7 +6,7 @@ import frontend_pb2
 import frontend_pb2_grpc
 import redis
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # Redis connection
@@ -31,7 +31,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
                 receiver_subscribed = decoded_data['subscribed']
                 if int(receiver_subscribed) == 1:
 
-                    timestamp = datetime.utcnow().isoformat()
+                    timestamp = datetime.now(timezone.utc).isoformat()
                     notification = {
                         "sender_email": sender_email,
                         "receiver_email": receiver_email,
@@ -42,7 +42,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
                     # Almacenar la notificación como JSON en la lista
                     redis_notifications.lpush(f'notifications:{receiver_email}', json.dumps(notification))
                     
-                    frontend_reponse = frontend_stub.ReceiveNotification(
+                    frontend_stub.ReceiveNotification(
                         frontend_pb2.Notification(
                             sender_email = sender_email,
                             receiver_email = receiver_email,
@@ -110,7 +110,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             success=True
             )
         except redis.RedisError as error:
-            context.set_details(f'Redis error: {error}')
+            context.set_details(f'Redis: {error}')
             context.set_code(grpc.StatusCode.INTERNAL)
             return notification_pb2.UnsubscribeUserResponse(
                     success=False
@@ -141,7 +141,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
                 )
 
         except redis.RedisError as error:
-            context.set_details(f'Redis error: {error}')
+            context.set_details(f'Redis: {error}')
             context.set_code(grpc.StatusCode.INTERNAL)
             return notification_pb2.CheckUserSubscribedResponse(
                     success=False
