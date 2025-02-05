@@ -54,7 +54,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
 
         
 
-    def ListUsers(self, request, context):
+    def ListUsers(self, request , context):
         users = []
         try:
             for key in redis_client.scan_iter(match="users:*"):

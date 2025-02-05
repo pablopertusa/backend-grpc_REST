@@ -35,5 +35,4 @@ service UserService {
         rpc CheckUserExists(CheckUserExistsRequest) returns (CheckUserExistsResponse);
         rpc AuthenticateUser(AuthenticateRequest) returns (AuthenticateResponse);
         rpc ListUsers(google.protobuf.Empty) returns (ListUsersResponse);
-
 }

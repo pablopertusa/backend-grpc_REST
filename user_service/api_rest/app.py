@@ -41,7 +41,7 @@ def create_user():
 
     try:
         redis_client.set(get_user_key(user_mail), json.dumps(data))
-    except redis.RedisError as e:
+    except redis.RedisError:
         return jsonify({"success": False, "message": "Error storing user data"}), 500
     
     # Subscribe user upon creation
@@ -71,7 +71,7 @@ def update_user(user_mail):
     try:
         # Update user data in Redis
         redis_client.set(get_user_key(user_mail), json.dumps(updated_data))
-    except redis.RedisError as e:
+    except redis.RedisError:
         return jsonify({"success": False, "message": "Error updating user data"}), 500
 
     return jsonify({"success": True, "message": "User updated successfully"}), 200
@@ -84,7 +84,7 @@ def delete_user(user_mail):
 
     try:
         redis_client.delete(get_user_key(user_mail))
-    except redis.RedisError as e:
+    except redis.RedisError:
         return jsonify({"success": False, "message": "Error deleting user data"}), 500
 
     return jsonify({"success": True, "message": "User deleted successfully"}), 204
