@@ -24,10 +24,9 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             # Check if receiver is subscribed
             user_data = redis_notifications.hgetall(f'subscriptions:{receiver_email}')
             decoded_data = {k.decode(): v.decode() for k, v in user_data.items()}
+
             # Check if Redis has dada for the receiver
-            has_data = 'subscribed' in decoded_data
-            
-            if has_data:
+            if 'subscribed' in decoded_data:
                 receiver_subscribed = decoded_data['subscribed']
                 if int(receiver_subscribed) == 1:
 
@@ -83,13 +82,6 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             success=True
             )
         
-        except redis.RedisError as error:
-            context.set_details(f'Redis error: {error}')
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return notification_pb2.SubscribeUserResponse(
-                    success=False
-                )  
-
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -109,12 +101,6 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             return notification_pb2.UnsubscribeUserResponse(
             success=True
             )
-        except redis.RedisError as error:
-            context.set_details(f'Redis: {error}')
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return notification_pb2.UnsubscribeUserResponse(
-                    success=False
-                )  
         
         except Exception as e:
             context.set_details(str(e))
@@ -140,12 +126,6 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
                     subscribed = False
                 )
 
-        except redis.RedisError as error:
-            context.set_details(f'Redis: {error}')
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return notification_pb2.CheckUserSubscribedResponse(
-                    success=False
-                )  
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)

@@ -100,11 +100,6 @@ class MessageService(message_pb2_grpc.MessageServiceServicer):
         # Get all conversation participants for the user
         convo_participants = redis_messages.smembers(f"user:{user_email}:conversations")
 
-        if not convo_participants:
-            return message_pb2.GetMessagesResponse(
-                messages = []
-            ) # return the appropiate response. Messages should be an empty list.
-
         # Retrieve messages from all conversations
         for participant in convo_participants:
             convo_key = f"conversation:{user_email}:{participant.decode("utf-8")}"

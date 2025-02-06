@@ -56,15 +56,14 @@ class UserService(user_pb2_grpc.UserServiceServicer):
         try:
             for key in redis_client.scan_iter(match="users:*"):
                 user_data = redis_client.get(key)
-                if user_data:
-                    user = json.loads(user_data)
-                    if "name" in user and "email" in user:
-                        users.append(
-                            user_pb2.User(
-                                name=user["name"],
-                                email=user["email"]
-                            )
-                        ) # Append all users
+                user = json.loads(user_data)
+                if "name" in user and "email" in user:
+                    users.append(
+                        user_pb2.User(
+                            name=user["name"],
+                            email=user["email"]
+                        )
+                    ) # Append all users
             return user_pb2.ListUsersResponse(users = users)
         except redis.RedisError as e:
             context.set_details(f"Redis error: {e}")
