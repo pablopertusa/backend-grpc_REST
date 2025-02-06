@@ -6,9 +6,10 @@ import os
 import grpc
 import notification_pb2
 import notification_pb2_grpc
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
-
+csrf = CSRFProtect(app)
 # Redis configuration
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
