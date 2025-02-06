@@ -3,4 +3,3 @@ redis
 grpcio
 grpcio-tools
 protobuf
-Flask-WTF

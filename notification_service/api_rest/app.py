@@ -1,11 +1,8 @@
 from flask import Flask, request, jsonify
 import redis
 import json
-from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
-csrf = CSRFProtect(app)
-
 # Redis connection
 redis_notifications = redis.Redis(host="redis", port=6379, db=2)
 
