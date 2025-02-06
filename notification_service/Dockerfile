@@ -13,17 +13,14 @@ RUN mkdir -p proto_generated
 # Copy proto definitions into the container
 COPY ../proto_definitions /app/proto_definitions
 
-# Install required Python packages
-RUN pip install --no-cache-dir -r requirements.txt
-
 # Generate the Python files from the .proto files
-RUN python -m grpc_tools.protoc \
+RUN pip install --no-cache-dir -r requirements.txt && \
+    python -m grpc_tools.protoc \
     -I./proto_definitions \
     --python_out=./proto_generated \
     --grpc_python_out=./proto_generated \
-    ./proto_definitions/notification.proto
-
-RUN python -m grpc_tools.protoc \
+    ./proto_definitions/notification.proto && \
+    python -m grpc_tools.protoc \
     -I./proto_definitions \
     --python_out=./proto_generated \
     --grpc_python_out=./proto_generated \
