@@ -5,6 +5,7 @@ import frontend_pb2_grpc
 
 class FrontendService:
     def ReceiveNotification(self, request, context):
+        print(request, context)
         return frontend_pb2.ReceiveNotificationResponse(
             success = True
         )
