@@ -1,16 +1,24 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12-slim
 
+# Crea un usuario y grupo no root
+RUN groupadd --gid 1000 appgroup && \
+    useradd --uid 1000 --gid appgroup --create-home appuser
+
+# Cambia al usuario no root
+USER appuser
+
 # Set the working directory in the container
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
 ARG FOLDER
 
-COPY ${FOLDER} /app
+COPY --chown=appuser:appgroup ${FOLDER} /app
+
 RUN mkdir -p proto_generated
 # Copy proto definitions into the container
-COPY ../proto_definitions /app/proto_definitions
+COPY --chown=appuser:appgroup ../proto_definitions /app/proto_definitions
 
 # Install required Python packages
 RUN pip install --no-cache-dir -r requirements.txt && \
