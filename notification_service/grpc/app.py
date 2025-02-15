@@ -16,7 +16,7 @@ frontend_stub = frontend_pb2_grpc.FrontendServiceStub(frontend_channel)
 
 
 class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
-    def CreateNotification(self, request, context):
+    def CreateNotification(self, request, context): # Este se podría bajar la complejidad quitando elses
         try:
             receiver_email = request.receiver_email
             sender_email = request.sender_email
@@ -109,7 +109,7 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
                     success=False
                 ) 
 
-    def CheckUserSubscribed(self, request, context):
+    def CheckUserSubscribed(self, request, context): # Aquí también se podría mejorar
         try:
             email = request.email
             # Fetch user data

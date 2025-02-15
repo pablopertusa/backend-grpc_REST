@@ -4,14 +4,22 @@ FROM python:3.12-slim
 # Set the working directory in the container
 WORKDIR /app
 
+# Create a non-root user
+RUN useradd -m appuser
+
 # Copy the current directory contents into the container at /app
 ARG FOLDER
 
 COPY ${FOLDER} /app
-
 RUN mkdir -p proto_generated
 # Copy proto definitions into the container
 COPY ../proto_definitions /app/proto_definitions
+
+# Change ownership of the working directory
+RUN chown -R appuser:appuser /app
+
+# Switch to the non-root user
+USER appuser
 
 # Install required Python packages
 RUN pip install --no-cache-dir -r requirements.txt && \
@@ -26,8 +34,8 @@ RUN pip install --no-cache-dir -r requirements.txt && \
     --grpc_python_out=./proto_generated \
     ./proto_definitions/notification.proto
 
-    
+# Set environment variables
 ENV PYTHONPATH="/app/proto_generated:${PYTHONPATH}"
 
 # Run user service http and grpc when the container starts
-CMD ["python","app.py"]
+CMD ["python", "app.py"]
