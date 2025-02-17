@@ -6,10 +6,8 @@ import os
 import grpc
 import notification_pb2
 import notification_pb2_grpc
-from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
-csrf = CSRFProtect(app)
 
 # Redis configuration
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
@@ -20,14 +18,8 @@ redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 notification_channel = grpc.insecure_channel("notification_service_grpc:9898")
 notification_stub = notification_pb2_grpc.NotificationServiceStub(notification_channel)
 
-
 def get_user_key(email):
     return f"users:{email}"
-
-@app.before_request
-def disable_csrf_for_api():
-    if request.content_type == 'application/json':
-        setattr(request, '_disable_csrf', True)
 
 @app.route("/users", methods=["POST"])
 def create_user():
