@@ -3,7 +3,7 @@ from concurrent import futures
 import frontend_pb2
 import frontend_pb2_grpc
 
-class FrontendService:
+class FrontendService(frontend_pb2_grpc.FrontendServiceServicer):
     def ReceiveNotification(self, request, context):
         print(request, context)
         return frontend_pb2.ReceiveNotificationResponse(

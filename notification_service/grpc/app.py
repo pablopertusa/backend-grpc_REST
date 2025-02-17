@@ -26,45 +26,38 @@ class NotificationService(notification_pb2_grpc.NotificationServiceServicer):
             decoded_data = {k.decode(): v.decode() for k, v in user_data.items()}
 
             # Check if Redis has dada for the receiver
-            if 'subscribed' in decoded_data:
-                receiver_subscribed = decoded_data['subscribed']
-                if int(receiver_subscribed) == 1:
+            receiver_subscribed = decoded_data['subscribed']
+            if int(receiver_subscribed) == 1:
 
-                    timestamp = datetime.now(timezone.utc).isoformat()
-                    notification = {
-                        "sender_email": sender_email,
-                        "receiver_email": receiver_email,
-                        "timestamp": timestamp,
-                        "read": False
-                    }
-                    
-                    # Almacenar la notificación como JSON en la lista
-                    redis_notifications.lpush(f'notifications:{receiver_email}', json.dumps(notification))
-                    
-                    frontend_stub.ReceiveNotification(
-                        frontend_pb2.Notification(
-                            sender_email = sender_email,
-                            receiver_email = receiver_email,
-                            timestamp = timestamp,
-                            read = False
-                        )
+                timestamp = datetime.now(timezone.utc).isoformat()
+                notification = {
+                    "sender_email": sender_email,
+                    "receiver_email": receiver_email,
+                    "timestamp": timestamp,
+                    "read": False
+                }
+                
+                # Almacenar la notificación como JSON en la lista
+                redis_notifications.lpush(f'notifications:{receiver_email}', json.dumps(notification))
+                
+                frontend_stub.ReceiveNotification(
+                    frontend_pb2.Notification(
+                        sender_email = sender_email,
+                        receiver_email = receiver_email,
+                        timestamp = timestamp,
+                        read = False
                     )
-
-                    return notification_pb2.CreateNotificationResponse(
-                        success = True
-                    )
-                else:
-                    return notification_pb2.CreateNotificationResponse(
-                    success = False
-                ) 
-            else:
-                return notification_pb2.CreateNotificationResponse(
-                    success = False
                 )
 
-        except Exception as e:
-            context.set_details(str(e))
-            context.set_code(grpc.StatusCode.INTERNAL)
+                return notification_pb2.CreateNotificationResponse(
+                    success = True
+                )
+            else:
+                return notification_pb2.CreateNotificationResponse(
+                success = False
+            ) 
+
+        except Exception:
             return notification_pb2.CreateNotificationResponse(
                     success=False
                 ) 
